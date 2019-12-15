@@ -1,0 +1,91 @@
+:::::::::  :::    :::  ::::::::  :::         ::::::::   ::::::::
+:+:    :+: :+:    :+: :+:    :+: :+:        :+:    :+: :+:    :+:
++:+    +:+ +:+    +:+ +:+        +:+        +:+    +:+ +:+
++#++:++#+  +#+    +:+ :#:        +#+        +#+    +:+ :#:
++#+    +#+ +#+    +#+ +#+   +#+# +#+        +#+    +#+ +#+   +#+#
+#+#    #+# #+#    #+# #+#    #+# #+#        #+#    #+# #+#    #+#
+#########   ########   ########  ##########  ########   ########
+
+
+- - - - - - - - - - - - - [ THE  KEY ] - - - - - - - - - - - - -
+
+- - - - - - -[ B: BUG ] - - - 0-^^ - - - [ F: FIX ]- - - - - - -
+
+-----------------------xX      MP3     Xx-----------------------
+
+B: Initializing PIC crashes everything (watchdawg)
+F: Initial irq mask leaves all interrupts open instead of closed
+F: Final irq mask is sent to incorrect port
+   (port 1 instead of port 2)
+
+B: Calling disable_irq and enable_irq crashes everything (watchdawg)
+F: irq mask is sent to incorrect port (port 1 instead of port 2)
+
+B: no interrupts occurs
+F: STI is not called in kernal
+
+B: keyboard interrupt occurs only once
+F: EOI signal not sent after executing interrupt
+F: Wrap handler with assembly code that pushes and pops registers
+   and calls IRET after execution
+
+B: Exception thrown when executing IRET after interrupt
+F: ASM wrapper is called from a function, edit EDT so wrapper
+   is called directly
+
+B: Charecters after 'D' located on keyboard are not being shown
+   on the screen
+F: TYPO if statements checks ASCII value for space instead of
+   scan code value of space. ASCII_space = SC_f
+
+B: RTC interrupt interrupt occurs only once
+F: TYPO where EOI is being sent to MASTER PIC twice
+F: RTC waits for register C to be read each time it invocates
+   an interrupt. make sure to read from register C in interrupt
+   hanler even when unnessesary
+
+B: Keyboard not updating cursor
+F: Needed to add update cursor and reset cursor method and call
+   in putc function
+
+B: Keyboard not backspacing properly. keeps typing weird character
+F: Backspace is 0x08 not 0x7F. There is a difference between BS and
+   del. Had to add section in putc to update cursor and screen for
+   backspacing
+
+B: Typing keeps overwriting line until enter is pressed
+F: Added thread in putc that tests if cursor is all the way to right
+   If so, then move to next line as long as not at the end.
+   (thread is simply another condition in if statement for newline
+
+B: Backspace not behaving properly. Acting like space bar
+F: Rather than setting backspace as an interrupt treat it as a
+   character. Add it to s_code_table as ascii character.
+
+B: Filling up the last line with text, backspacing to the line 
+   before, then typing again, fills the screen with characters
+   typed diagonally.
+F: Edited the way backspace is treated in the buffer.
+
+B: Commands and their arguments sometimes had garbage inputs.
+F: Clear the keyboard and terminal buffer before filling them.
+
+B: Switching terminals results in cursor misplacement
+F: Using current terminal value rather than terminal id value for 
+   scheduled process.
+
+B: Fish running in one terminal displayed in another
+F: Remapped vidmap to next process's terminal when switching 
+   processes.
+   
+B: Terminal read reads from all buffers
+F: use a flag for each buffer to determine which user program gets the 
+   keyboard buffer
+  
+B: Terminal write prints to current terminal even if from terminal not in use
+F: Print according to process's term_id
+
+B: Terminal color is boring an ordinary. Def not woke
+F: Found out we can change color of terminal and text. Terminal now on fleek
+   
+
